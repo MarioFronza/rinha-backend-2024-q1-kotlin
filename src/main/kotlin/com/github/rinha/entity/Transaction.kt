@@ -6,7 +6,7 @@ data class Transaction(
     val id: Int = -1,
     val clientId: Int,
     val value: Int,
-    val type: String,
+    val type: Char,
     val description: String,
     val createdAt: Instant? = null,
 )

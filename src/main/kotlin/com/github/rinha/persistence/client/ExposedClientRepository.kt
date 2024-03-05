@@ -2,6 +2,7 @@ package com.github.rinha.persistence.client
 
 import com.github.eu.DefaultDAO
 import com.github.eu.Repository
+import com.github.eu.util.query
 import com.github.rinha.entity.Client
 
 class ExposedClientRepository : ClientRepository, DefaultDAO<Client, Int, ClientEntity>(ClientEntity) {
@@ -11,6 +12,13 @@ class ExposedClientRepository : ClientRepository, DefaultDAO<Client, Int, Client
         balance = balance,
         limit = lmt
     )
+
+    override suspend fun updateBalance(id: Int, newBalance: Int) = query {
+        val client = ClientEntity[id].apply {
+            balance = newBalance
+        }
+        client.toDomain()
+    }
 
     override suspend fun create(entity: Client): Client {
         TODO("Not yet implemented")

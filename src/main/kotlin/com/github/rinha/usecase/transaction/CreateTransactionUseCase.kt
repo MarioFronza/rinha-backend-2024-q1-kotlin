@@ -14,6 +14,14 @@ class CreateTransactionUseCase(
 
     suspend fun create(clientId: Int, request: CreateTransactionInput): TransactionOutput {
         val client = clientRepository.findById(clientId) ?: throw Exception("not found")
+
+        val newBalance = calculateNewBalance(client.balance, request)
+
+        if (isDebitTransaction(request) && !isBalanceConsistent(newBalance, client.limit)) {
+            throw Exception()
+        }
+
+        val updatedClient = clientRepository.updateBalance(clientId, newBalance)
         transactionRepository.create(
             Transaction(
                 clientId = clientId,
@@ -22,7 +30,18 @@ class CreateTransactionUseCase(
                 description = request.descricao
             )
         )
-        return fromClientEntity(client)
+
+        return fromClientEntity(updatedClient)
+    }
+
+    private fun isDebitTransaction(request: CreateTransactionInput) = request.tipo == 'd'
+    private fun isBalanceConsistent(newBalance: Int, limit: Int) = newBalance >= -limit
+    private fun calculateNewBalance(currentBalance: Int, request: CreateTransactionInput): Int {
+        return if (isDebitTransaction(request)) {
+            currentBalance - request.valor
+        } else {
+            currentBalance + request.valor
+        }
     }
 
 }

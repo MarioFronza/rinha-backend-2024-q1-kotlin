@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateTransactionInput(
-    val tipo: String,
+    val tipo: Char,
     val valor: Int,
     val descricao: String
 ) {

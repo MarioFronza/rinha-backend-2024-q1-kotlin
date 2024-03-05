@@ -24,4 +24,10 @@ class TransactionEntity(id: EntityID<Int>) : IntEntity(id) {
     var description by TransactionTable.description
 
     companion object : IntEntityClass<TransactionEntity>(TransactionTable)
+
+    var typeChar: Char
+        get() = type.single()
+        set(value) {
+            type = value.toString()
+        }
 }

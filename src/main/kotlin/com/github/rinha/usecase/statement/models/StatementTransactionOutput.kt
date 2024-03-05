@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StatementTransactionOutput(
     val valor: Int,
-    val tipo: String,
+    val tipo: Char,
     val descricao: String,
     val realizada_em: String
 ) {
