@@ -5,13 +5,14 @@ CREATE TABLE clients (
     lmt INT NOT NULL
 );
 
-CREATE TABLE transaction (
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
-    client_id INT REFERENCES clients (id),
+    client_id INT,
     value INT NOT NULL,
     type CHAR(1) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    description VARCHAR(10) NOT NULL
+    description VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_client_id FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE
 );
 
 DO $$

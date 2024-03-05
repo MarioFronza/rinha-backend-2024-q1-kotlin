@@ -1,10 +1,10 @@
-package com.github.rinha.controllers.transaction
+package com.github.rinha.usecase.transaction.models
 
 import com.github.rinha.entity.Transaction
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TransactionRequest(
+data class CreateTransactionInput(
     val tipo: String,
     val valor: Int,
     val descricao: String

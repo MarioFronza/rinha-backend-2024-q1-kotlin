@@ -5,7 +5,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 
-object ClientTable : IntIdTable() {
+object ClientTable : IntIdTable("clients") {
     val name = varchar("name", 50).index()
     val balance = integer("balance").default(0)
     val lmt = integer("lmt")

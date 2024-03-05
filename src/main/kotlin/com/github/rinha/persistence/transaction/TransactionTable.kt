@@ -8,7 +8,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.timestamp
 
-object TransactionTable : IntIdTable() {
+object TransactionTable : IntIdTable("transactions") {
     val clientId = reference("client_id", ClientTable, onDelete = ReferenceOption.CASCADE)
     val value = integer("value")
     val type = char("type", 1)

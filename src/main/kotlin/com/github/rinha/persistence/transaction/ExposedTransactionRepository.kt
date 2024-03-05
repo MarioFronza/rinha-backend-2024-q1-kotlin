@@ -18,8 +18,8 @@ class ExposedTransactionRepository : TransactionRepository,
         description = description
     )
 
-    override suspend fun findByClientId(clientId: Int): List<Transaction> {
-        return TransactionEntity
+    override suspend fun findByClientId(clientId: Int) = query {
+        TransactionEntity
             .find { TransactionTable.clientId eq clientId }
             .limit(10)
             .map { it.toDomain() }
@@ -29,9 +29,9 @@ class ExposedTransactionRepository : TransactionRepository,
         val clientIdEntityId = EntityID(entity.clientId, ClientTable)
         val newTransaction = TransactionEntity.new {
             clientId = clientIdEntityId
-            type = type
-            value = value
-            description = description
+            type = entity.type
+            value = entity.value
+            description = entity.description
             createdAt = Instant.now()
         }
         newTransaction.toDomain()
