@@ -4,6 +4,7 @@ val ktorVersion: String by project
 val logbackClassicVersion: String by project
 val exposedUtilsVersion: String by project
 val postgresqlVersion: String by project
+val exposedVersion: String by project
 val hikariVersion: String by project
 
 plugins {
@@ -30,6 +31,10 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackClassicVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     implementation("com.github.MarioFronza:exposed-utils:$exposedUtilsVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
