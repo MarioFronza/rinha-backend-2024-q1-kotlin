@@ -8,18 +8,18 @@ object DatabaseConfig {
 
     fun hikari(
         driver: String,
-        url: String,
+        host: String,
         schema: String,
         dbUsername: String,
         dbPassword: String,
     ) {
+        val url = "jdbc:postgresql://${host}:5432/" + schema
         val config = HikariConfig().apply {
-            jdbcUrl = url + schema
+            jdbcUrl = url
             driverClassName = driver
             username = dbUsername
             password = dbPassword
-            maximumPoolSize = 20
-            minimumIdle = 10
+            maximumPoolSize = 10
         }
         val ds = HikariDataSource(config)
         Database.connect(ds)
