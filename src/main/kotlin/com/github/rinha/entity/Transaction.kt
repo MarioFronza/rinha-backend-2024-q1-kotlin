@@ -16,11 +16,8 @@ data class Transaction(
 ) {
     fun isValid(): NotificationOutput<Transaction> {
         if (value <= 0) return validationError("Invalid value")
-
         if (type != 'c' && type != 'd') return validationError("Invalid type")
-
         if (description.length !in 1..10) return validationError("Invalid description")
-
         return NotificationSuccess(this)
     }
 

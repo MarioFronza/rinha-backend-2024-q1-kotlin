@@ -15,6 +15,10 @@ CREATE TABLE transactions (
     CONSTRAINT fk_client_id FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_client_id ON transactions (client_id);
+
+CREATE INDEX idx_transactions_by_client_and_created_at ON transactions (client_id, created_at DESC);
+
 DO $$
 BEGIN
     INSERT INTO clients (name, lmt)

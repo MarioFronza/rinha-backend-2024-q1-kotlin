@@ -12,6 +12,7 @@ import com.github.rinha.usecase.transaction.models.CreateTransactionInput
 import com.github.rinha.usecase.transaction.models.TransactionOutput
 import com.github.rinha.usecase.transaction.models.TransactionOutput.Companion.fromClientEntity
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 
 class CreateTransactionUseCase(
     private val clientRepository: ClientRepository,
@@ -40,18 +41,13 @@ class CreateTransactionUseCase(
             )
         }
 
-        val updatedClient = clientRepository.updateBalance(clientId, newBalance)
-        transactionRepository.create(
-            Transaction(
-                clientId = clientId,
-                value = request.valor,
-                type = request.tipo,
-                description = request.descricao
-            )
-        )
+        val updatedClient = suspendedTransactionAsync {
+            transactionRepository.create(transaction)
+            clientRepository.updateBalance(clientId, newBalance)
+        }
 
         return NotificationSuccess(
-            data = fromClientEntity(updatedClient)
+            data = fromClientEntity(updatedClient.await())
         )
     }
 
