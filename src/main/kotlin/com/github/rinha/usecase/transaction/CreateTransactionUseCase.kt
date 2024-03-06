@@ -1,17 +1,17 @@
 package com.github.rinha.usecase.transaction
 
-import com.github.rinha.entity.Client
+import com.github.rinha.entity.Transaction
+import com.github.rinha.entity.notification.NotificationErrorType.DOMAIN_ERROR
+import com.github.rinha.entity.notification.NotificationErrorType.ENTITY_NOT_FOUND
+import com.github.rinha.entity.notification.NotificationOutput
+import com.github.rinha.entity.notification.NotificationOutput.NotificationError
+import com.github.rinha.entity.notification.NotificationOutput.NotificationSuccess
+import com.github.rinha.persistence.client.ClientRepository
+import com.github.rinha.persistence.transaction.TransactionRepository
 import com.github.rinha.usecase.transaction.models.CreateTransactionInput
 import com.github.rinha.usecase.transaction.models.TransactionOutput
 import com.github.rinha.usecase.transaction.models.TransactionOutput.Companion.fromClientEntity
-import com.github.rinha.entity.Transaction
-import com.github.rinha.persistence.client.ClientRepository
-import com.github.rinha.persistence.transaction.TransactionRepository
-import com.github.rinha.usecase.notification.NotificationOutput
-import com.github.rinha.usecase.notification.NotificationOutput.NotificationError
-import com.github.rinha.usecase.notification.NotificationOutput.NotificationSuccess
-import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class CreateTransactionUseCase(
     private val clientRepository: ClientRepository,
@@ -19,17 +19,24 @@ class CreateTransactionUseCase(
 ) {
 
     suspend fun create(clientId: Int, request: CreateTransactionInput): NotificationOutput<TransactionOutput> {
+        val notificationOutput = request.toEntity(clientId).run { isValid() }
+
+        val transaction = when (notificationOutput) {
+            is NotificationSuccess -> notificationOutput.data
+            is NotificationError -> return notificationOutput
+        }
+
         val client = clientRepository.findById(clientId) ?: return NotificationError(
             message = "Client with id $clientId was not found",
-            type = HttpStatusCode.NotFound
+            type = ENTITY_NOT_FOUND
         )
 
-        val newBalance = calculateNewBalance(client.balance, request)
+        val newBalance = calculateNewBalance(client.balance, transaction)
 
-        if (isDebitTransaction(request) && !isBalanceConsistent(newBalance, client.limit)) {
+        if (isDebitTransaction(transaction) && !isBalanceConsistent(newBalance, client.limit)) {
             return NotificationError(
                 message = "Could not apply debit operation",
-                type = HttpStatusCode.UnprocessableEntity
+                type = DOMAIN_ERROR
             )
         }
 
@@ -48,14 +55,15 @@ class CreateTransactionUseCase(
         )
     }
 
-    private fun isDebitTransaction(request: CreateTransactionInput) = request.tipo == 'd'
     private fun isBalanceConsistent(newBalance: Int, limit: Int) = newBalance >= -limit
-    private fun calculateNewBalance(currentBalance: Int, request: CreateTransactionInput): Int {
-        return if (isDebitTransaction(request)) {
-            currentBalance - request.valor
+
+    private fun calculateNewBalance(currentBalance: Int, transaction: Transaction): Int {
+        return if (isDebitTransaction(transaction)) {
+            currentBalance - transaction.value
         } else {
-            currentBalance + request.valor
+            currentBalance + transaction.value
         }
     }
 
+    private fun isDebitTransaction(request: Transaction) = request.type == 'd'
 }
