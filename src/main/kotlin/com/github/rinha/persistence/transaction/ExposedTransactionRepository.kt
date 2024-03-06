@@ -3,12 +3,10 @@ package com.github.rinha.persistence.transaction
 import com.github.eu.DefaultDAO
 import com.github.eu.query.order
 import com.github.eu.query.pagination.Order
-import com.github.eu.query.pagination.Order.DESC
 import com.github.eu.util.query
 import com.github.rinha.entity.Transaction
 import com.github.rinha.persistence.client.ClientTable
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.SortOrder
 import java.time.Instant
 
 class ExposedTransactionRepository : TransactionRepository,
@@ -26,7 +24,7 @@ class ExposedTransactionRepository : TransactionRepository,
         TransactionEntity
             .find { TransactionTable.clientId eq clientId }
             .limit(10)
-            .orderBy(TransactionTable.createdAt to DESC.order())
+            .orderBy(TransactionTable.createdAt to Order.DESC.order())
             .map { it.toDomain() }
     }
 

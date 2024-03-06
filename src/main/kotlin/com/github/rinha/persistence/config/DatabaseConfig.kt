@@ -3,6 +3,7 @@ package com.github.rinha.persistence.config
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
 
 object DatabaseConfig {
 
@@ -19,10 +20,20 @@ object DatabaseConfig {
             driverClassName = driver
             username = dbUsername
             password = dbPassword
-            maximumPoolSize = 10
+            maximumPoolSize = 20
+            isAutoCommit = false
+            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            connectionTimeout = 250
+            maxLifetime = 600000
+            minimumIdle = 10
         }
         val ds = HikariDataSource(config)
-        Database.connect(ds)
+        Database.connect(
+            datasource = ds,
+            databaseConfig = DatabaseConfig {
+                defaultRepetitionAttempts = 3
+            }
+        )
     }
 
 }

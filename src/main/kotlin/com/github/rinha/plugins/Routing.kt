@@ -44,7 +44,12 @@ fun Application.configureRouting() {
         route("/clientes") {
             post("/{id}/transacoes") {
                 val id = requiredIntParameter("id", NotFound) ?: return@post
-                val input = call.receive<CreateTransactionInput>()
+                val input = try {
+                    call.receive<CreateTransactionInput>()
+                } catch (ex: Exception) {
+                    call.respond(BadRequest)
+                    return@post
+                }
                 when (val response = createTransactionUseCase.create(id, input)) {
                     is NotificationSuccess<TransactionOutput> -> call.respond(response.data)
                     is NotificationError -> call.respond(response.type.toHttpStatus(), response.message)

@@ -41,13 +41,11 @@ class CreateTransactionUseCase(
             )
         }
 
-        val updatedClient = suspendedTransactionAsync {
-            transactionRepository.create(transaction)
-            clientRepository.updateBalance(clientId, newBalance)
-        }
+        transactionRepository.create(transaction)
+        val updatedClient = clientRepository.updateBalance(clientId, newBalance)
 
         return NotificationSuccess(
-            data = fromClientEntity(updatedClient.await())
+            data = fromClientEntity(updatedClient)
         )
     }
 
