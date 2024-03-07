@@ -20,11 +20,11 @@ class CreateTransactionUseCase(
             is NotificationError -> return notificationOutput
         }
 
-        val transactionExposedResponse = transactionRepository.createAndUpdateClientBalance(clientId, transaction)
+        val repositoryResponse = transactionRepository.createAndUpdateClientBalance(clientId, transaction)
 
-        val updatedBalance = when (transactionExposedResponse) {
-            is NotificationSuccess -> transactionExposedResponse.data
-            is NotificationError -> return transactionExposedResponse
+        val updatedBalance = when (repositoryResponse) {
+            is NotificationSuccess -> repositoryResponse.data
+            is NotificationError -> return repositoryResponse
         }
 
         return NotificationSuccess(

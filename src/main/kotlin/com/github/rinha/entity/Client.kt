@@ -5,3 +5,8 @@ data class Client(
     val name: String,
     val balance: ClientBalance
 )
+
+data class ClientBalance(
+    val balance: Int,
+    val limit: Int
+)

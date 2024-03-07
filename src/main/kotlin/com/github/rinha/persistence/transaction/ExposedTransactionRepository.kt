@@ -68,15 +68,7 @@ class ExposedTransactionRepository : TransactionRepository,
     }
 
     override suspend fun create(entity: Transaction) = query {
-        val clientIdEntityId = EntityID(entity.clientId, ClientTable)
-        val newTransaction = TransactionEntity.new {
-            clientId = clientIdEntityId
-            typeChar = entity.type
-            value = entity.value
-            description = entity.description
-            createdAt = Instant.now()
-        }
-        newTransaction.toDomain()
+        TODO("Not yet implemented")
     }
 
     override suspend fun update(entity: Transaction) = query {

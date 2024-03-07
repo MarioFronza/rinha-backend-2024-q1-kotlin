@@ -9,3 +9,9 @@ sealed class NotificationOutput<out T> {
         val type: NotificationErrorType
     ) : NotificationOutput<Nothing>()
 }
+
+enum class NotificationErrorType{
+    DATA_VALIDATION_ERROR,
+    ENTITY_NOT_FOUND,
+    DOMAIN_ERROR
+}
