@@ -2,7 +2,6 @@ package com.github.rinha.plugins
 
 import com.github.rinha.entity.notification.NotificationOutput.NotificationError
 import com.github.rinha.entity.notification.NotificationOutput.NotificationSuccess
-import com.github.rinha.persistence.client.ExposedClientRepository
 import com.github.rinha.persistence.transaction.ExposedTransactionRepository
 import com.github.rinha.plugins.utils.receiveOrRespondBadRequest
 import com.github.rinha.plugins.utils.requiredIntParameter
@@ -21,17 +20,11 @@ import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
 
-    val clientRepository = ExposedClientRepository()
     val transactionRepository = ExposedTransactionRepository()
 
-    val createTransactionUseCase = CreateTransactionUseCase(
-        transactionRepository
-    )
+    val createTransactionUseCase = CreateTransactionUseCase(transactionRepository)
 
-    val getStatementUseCase = GetStatementUseCase(
-        clientRepository,
-        transactionRepository
-    )
+    val getStatementUseCase = GetStatementUseCase(transactionRepository)
 
     install(ContentNegotiation) {
         json()

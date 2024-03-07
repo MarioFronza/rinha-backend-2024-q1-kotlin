@@ -6,19 +6,14 @@ import com.github.eu.query.pagination.Order
 import com.github.eu.util.query
 import com.github.rinha.entity.ClientBalance
 import com.github.rinha.entity.Transaction
-import com.github.rinha.entity.notification.NotificationErrorType
+import com.github.rinha.entity.notification.NotificationErrorType.DOMAIN_ERROR
+import com.github.rinha.entity.notification.NotificationErrorType.ENTITY_NOT_FOUND
 import com.github.rinha.entity.notification.NotificationOutput
-import com.github.rinha.persistence.client.ClientTable
+import com.github.rinha.entity.notification.NotificationOutput.NotificationError
+import com.github.rinha.persistence.client.ClientEntity
 import com.github.rinha.persistence.utils.FunctionResponse
 import com.github.rinha.persistence.utils.execAndMap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.selects.select
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.postgresql.jdbc.PgResultSet
-import java.time.Instant
+import com.github.rinha.usecase.statement.models.StatementInfoRepositoryOutput
 
 class ExposedTransactionRepository : TransactionRepository,
     DefaultDAO<Transaction, Int, TransactionEntity>(TransactionEntity) {
@@ -32,11 +27,22 @@ class ExposedTransactionRepository : TransactionRepository,
     )
 
     override suspend fun findByClientId(clientId: Int) = query {
-        TransactionEntity
-            .find { TransactionTable.clientId eq clientId }
+        val client = ClientEntity.findById(clientId) ?: return@query NotificationError(
+            message = "Database operation error: CLIENT_NOT_FOUND",
+            type = ENTITY_NOT_FOUND
+        )
+        val transactions = TransactionEntity
+            .find { TransactionTable.clientId eq client.id }
             .limit(10)
-            .orderBy(TransactionTable.createdAt to Order.DESC.order())
+            .order(TransactionTable, null, TransactionTable.createdAt to Order.DESC)
             .map { it.toDomain() }
+
+        NotificationOutput.NotificationSuccess(
+            data = StatementInfoRepositoryOutput(
+                client = client.toEntity(),
+                transactions = transactions
+            )
+        )
     }
 
     override suspend fun createAndUpdateClientBalance(clientId: Int, transaction: Transaction) = query {
@@ -53,12 +59,12 @@ class ExposedTransactionRepository : TransactionRepository,
             )
         }.first()
         if (response.isError) {
-            return@query NotificationOutput.NotificationError(
+            return@query NotificationError(
                 message = "Database operation error: ${response.message}",
                 type = if (response.message == "CLIENT_NOT_FOUND") {
-                    NotificationErrorType.ENTITY_NOT_FOUND
+                    ENTITY_NOT_FOUND
                 } else {
-                    NotificationErrorType.DOMAIN_ERROR
+                    DOMAIN_ERROR
                 }
             )
         }
