@@ -1,3 +1,6 @@
 package com.github.rinha.entity
 
-data class ClientBalance()
+data class ClientBalance(
+    val balance: Int,
+    val limit: Int
+)

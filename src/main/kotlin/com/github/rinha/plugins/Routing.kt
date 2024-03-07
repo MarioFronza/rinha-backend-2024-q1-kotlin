@@ -27,7 +27,6 @@ fun Application.configureRouting() {
     val transactionRepository = ExposedTransactionRepository()
 
     val createTransactionUseCase = CreateTransactionUseCase(
-        clientRepository,
         transactionRepository
     )
 
@@ -44,9 +43,8 @@ fun Application.configureRouting() {
         route("/clientes") {
             post("/{id}/transacoes") {
                 val id = requiredIntParameter("id", NotFound) ?: return@post
-                val input = try {
-                    call.receive<CreateTransactionInput>()
-                } catch (ex: Exception) {
+                val input = runCatching { call.receiveNullable<CreateTransactionInput>() }.getOrNull()
+                if (input == null) {
                     call.respond(BadRequest)
                     return@post
                 }

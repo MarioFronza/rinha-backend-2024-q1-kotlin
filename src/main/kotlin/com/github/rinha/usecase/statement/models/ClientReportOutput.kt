@@ -13,9 +13,9 @@ data class ClientReportOutput(
 
     companion object {
         fun fromClientEntity(entity: Client, statementDate: Instant) = ClientReportOutput(
-            total = entity.balance,
+            total = entity.balance.balance,
             data_extrato = statementDate.toString(),
-            limite = entity.limit
+            limite = entity.balance.limit
         )
     }
 

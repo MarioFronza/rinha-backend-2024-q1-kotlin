@@ -4,13 +4,16 @@ import com.github.eu.DefaultDAO
 import com.github.eu.Repository
 import com.github.eu.util.query
 import com.github.rinha.entity.Client
+import com.github.rinha.entity.ClientBalance
 
 class ExposedClientRepository : ClientRepository, DefaultDAO<Client, Int, ClientEntity>(ClientEntity) {
     override fun ClientEntity.toDomain() = Client(
         id = id.value,
         name = name,
-        balance = balance,
-        limit = lmt
+        balance = ClientBalance(
+            balance = balance,
+            limit = lmt
+        )
     )
 
     override suspend fun updateBalance(id: Int, newBalance: Int) = query {

@@ -22,7 +22,6 @@ object DatabaseConfig {
             password = dbPassword
             maximumPoolSize = 20
             isAutoCommit = false
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             connectionTimeout = 250
             maxLifetime = 600000
             minimumIdle = 10
